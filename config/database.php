@@ -2,7 +2,7 @@
 
 return array(
     'host' => 'localhost',
-    'database' => 'gallery',
+    'database' => 'webdev',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8'

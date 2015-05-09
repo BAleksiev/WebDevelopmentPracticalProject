@@ -3,12 +3,15 @@
 require_once 'libs/Input.php';
 require_once 'libs/Route.php';
 require_once 'libs/Config.php';
+require_once 'libs/Database.php';
 require_once 'libs/Auth.php';
 require_once 'libs/Controller.php';
 require_once 'libs/Model.php';
 require_once 'libs/View.php';
 
 require_once 'routes.php';
+
+require_once 'vendors/Smarty/Smarty.class.php';
 
 class App {
     

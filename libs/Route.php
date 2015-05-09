@@ -3,6 +3,9 @@
 class Route {
     
     public static $routes = array();
+    
+    public static $controller;
+    public static $method;
 
     public static function create($route, $action) {
         self::createRoute($route, $action);
@@ -18,7 +21,7 @@ class Route {
     
     public static function checkRoute($requestRoute) {
         
-        if($requestRoute == 'index.php') {
+        if(!$requestRoute) {
             $requestRoute = '/';
         }
         
@@ -48,15 +51,15 @@ class Route {
         
         $actionParams = explode('@', $action);
         
-        $controller = $actionParams[0];
-        $method = $actionParams[1];
+        self::$controller = $actionParams[0];
+        self::$method = $actionParams[1];
         
-        if(!class_exists($controller)) {
-            throw new Exception('Controller "'.$controller.'" not exists.');
+        if(!class_exists(self::$controller)) {
+            throw new Exception('Controller "'.self::$controller.'" not exists.');
         }
         
-        if(!method_exists($controller, $method)) {
-            throw new Exception('Method "'.$method.'" not exists in "'.$controller.'"');
+        if(!method_exists(self::$controller, self::$method)) {
+            throw new Exception('Method "'.self::$method.'" not exists in "'.self::$controller.'"');
         }
     }
     
