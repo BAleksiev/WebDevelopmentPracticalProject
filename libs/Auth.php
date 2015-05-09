@@ -3,63 +3,61 @@
 class Auth {
 
     private static $is_logged_in = false;
-    private static $logged_user = array();
+    public static $user = array();
 
-    private function __construct() {
+    public function __construct() {
         session_set_cookie_params(1800, "/");
         session_start();
-
-        if(!empty($_SESSION['username'])) {
+        
+        if(!empty($_SESSION['user']['username'])) {
             self::$is_logged_in = true;
 
-            self::$logged_user = array(
-                'id' => $_SESSION['user_id'],
-                'username' => $_SESSION['username']
-            );
+            self::$user = $_SESSION['user'];
         }
     }
 
-    public static function get_instance() {
-        static $instance = null;
-
-        if(null === $instance) {
-            $instance = new static();
-        }
-
-        return $instance;
-    }
-
-    public function is_logged_in() {
+    public static function check() {
         return self::$is_logged_in;
     }
 
-    public function get_logged_user() {
-        return self::$logged_user;
+    public static function checkAdmin() {
+        return self::$user['is_admin'] == 1 ? true : false;
     }
 
-    public function login($username, $password) {
-        $db_object = \Lib\Database::get_instance();
+    public static function attempt($username, $password) {
+
+        $db_object = Database::get_instance();
         $db = $db_object->get_db();
 
         $statement = $db->prepare(
-                "SELECT id, username FROM users WHERE username = ? "
-                ."AND password = MD5( ? ) LIMIT 1"
+                "SELECT * FROM users WHERE username = ? LIMIT 1"
         );
 
-        $statement->bind_param('ss', $username, $password);
+        $statement->bind_param('s', $username);
 
         $statement->execute();
 
         $result_set = $statement->get_result();
 
-        if($row = $result_set->fetch_assoc()) {
-            $_SESSION['username'] = $row['username'];
-            $_SESSION['user_id'] = $row['id'];
+        if($user = $result_set->fetch_assoc()) {
+            if(password_verify($password, $user['password'])) {
+                $_SESSION['user']['id'] = $user['id'];
+                $_SESSION['user']['username'] = $user['username'];
+                $_SESSION['user']['is_admin'] = $user['is_admin'];
 
-            return true;
+                self::$is_logged_in = true;
+
+                self::$user = $_SESSION['user'];
+
+                return true;
+            }
         }
 
         return false;
+    }
+    
+    public static function logout() {
+        unset($_SESSION['user']);
     }
 
 }

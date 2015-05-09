@@ -6,4 +6,7 @@ class User extends Model {
         parent::__construct(array_merge(['table' => 'users'], $args));
     }
     
+    public function getAlbums($userId) {
+        return (new Album())->find(['where' => 'user_id = '.$userId]);
+    }
 }

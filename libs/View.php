@@ -2,7 +2,7 @@
 
 class View {
 
-    public static function make($view, $data) {
+    public static function make($view, $data = array()) {
 
         $smarty = new Smarty();
         
