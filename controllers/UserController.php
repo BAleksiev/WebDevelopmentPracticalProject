@@ -7,8 +7,8 @@ class UserController extends Controller {
         if(!Auth::check()) {
             if($input = Input::all()) {
 
-                $username = trim($input['username']);
-                $password = trim($input['password']);
+                $username = trim(esc($input['username']));
+                $password = trim(esc($input['password']));
 
                 if(Auth::attempt($username, $password)) {
                     redirect('profile');
@@ -26,12 +26,18 @@ class UserController extends Controller {
 
     public function register() {
         if($input = Input::all()) {
-
-            // validate data
             
-            $username = trim($input['username']);
-            $password = trim($input['password']);
-
+            $username = trim(esc($input['username']));
+            $password = trim(esc($input['password']));
+            
+            if(strlen($username) < 3) {
+                Session::put(['Username must be at least 3 characters.'], 'error');
+            }
+            
+            if(Session::messages('error')) {
+                redirect('register');
+            }
+            
             $db_object = Database::get_instance();
             $db = $db_object->get_db();
 
@@ -52,6 +58,7 @@ class UserController extends Controller {
                 $user['password'] = password_hash($password, PASSWORD_BCRYPT);
                 
                 if((new User)->add($user)) {
+                    Session::put(['Registration successful.'], 'success');
                     redirect('login');
                 } else {
                     throw new Exception('Error creating user.');

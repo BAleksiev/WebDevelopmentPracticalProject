@@ -3,6 +3,11 @@
 class PhotoController extends Controller {
 
     public function photo($id) {
+        
+        $id = (int)$id;
+        if($id == 0) {
+            redirect('index');
+        }
 
         $this->data['photo'] = $photo = (new Photo)->get($id)[0];
 
@@ -18,6 +23,11 @@ class PhotoController extends Controller {
     }
 
     public function upload($albumId) {
+        
+        $albumId = (int)$albumId;
+        if($albumId == 0) {
+            redirect('index');
+        }
 
         if(!Auth::check()) {
             redirect('index');
@@ -29,12 +39,15 @@ class PhotoController extends Controller {
     }
 
     public function proccessUpload($albumId) {
+        
+        $albumId = (int)$albumId;
+        if($albumId == 0) {
+            redirect('index');
+        }
 
         if(!Auth::check()) {
             redirect('index');
         }
-
-        $description = trim(Input::get('description'));
 
         $photo = Input::get('photo');
 
@@ -58,7 +71,7 @@ class PhotoController extends Controller {
         }
 
         if(!Session::messages('error')) {
-            $photoDto['description'] = $description;
+            $photoDto['description'] = trim(esc(Input::get('description')));
             $photoDto['format'] = $format;
             $photoDto['album_id'] = $albumId;
             $photoDto['user_id'] = Auth::$user['id'];
@@ -73,19 +86,26 @@ class PhotoController extends Controller {
     }
 
     public function comment($photoId) {
+        
+        $photoId = (int)$photoId;
+        if($photoId == 0) {
+            redirect('index');
+        }
 
         if(!Auth::check()) {
             redirect('photo/'.$photoId);
         }
 
-        // validate data
-        $comment = trim(Input::get('comment'));
-
-        $commentDto['comment'] = $comment;
+        $commentDto['comment'] = trim(esc(Input::get('comment')));
         $commentDto['user_id'] = Auth::$user['id'];
         $commentDto['photo_id'] = (int)$photoId;
         $commentDto['date_created'] = date("Y-m-d H:i:s");
 
+        if($commentDto['photo_id'] == 0) {
+            Session::put(['Invalid photo.'], 'error');
+            redirect('index');
+        }
+        
         if(!(new PhotoComments)->add($commentDto)) {
             Session::put(['Error submiting the comment.'], 'error');
         }

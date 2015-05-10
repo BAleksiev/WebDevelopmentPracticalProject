@@ -4,6 +4,8 @@ class AlbumController extends Controller {
     
     public function category($name) {
         
+        $name = trim(esc($name));
+        
         $this->data['category'] = $category = (new Category())->get_by_name($name);
         $this->data['albums'] = $albums = (new Category())->getAlbums($category[0]['id']);
         
@@ -11,6 +13,11 @@ class AlbumController extends Controller {
     }
     
     public function userProfile($userId) {
+        
+        $userId = (int)$userId;
+        if($userId == 0) {
+            redirect('index');
+        }
         
         $this->data['albums'] = $albums = (new User())->getAlbums($userId);
         $this->data['user'] = $user = (new User())->get($userId)[0];
@@ -23,6 +30,11 @@ class AlbumController extends Controller {
     }
     
     public function album($id) {
+        
+        $id = (int)$id;
+        if($id == 0) {
+            redirect('index');
+        }
         
         $this->data['album'] = $album = (new Album)->get($id);
         $this->data['photos'] = $photos = (new Album)->getPhotos($album[0]['id']);
@@ -46,11 +58,15 @@ class AlbumController extends Controller {
         
         if($input = Input::all()) {
             
-            // validate data
-            $album['name'] = trim($input['name']);
-            $album['description'] = trim($input['description']);
+            $album['name'] = trim(esc($input['name']));
+            $album['description'] = trim(esc($input['description']));
             $album['user_id'] = Auth::$user['id'];
             $album['category_id'] = (int)$input['category'];
+            
+            if($album['category_id'] == 0) {
+                Session::put(['Invalid category.'], 'error');
+                redirect('profile');
+            }
             
             if((new Album)->add($album)) {
                 Session::put(['Album created.'], 'success');
@@ -64,17 +80,24 @@ class AlbumController extends Controller {
     
     public function comment($albumId) {
         
+        $albumId = (int)$albumId;
+        if($albumId == 0) {
+            redirect('index');
+        }
+        
         if(!Auth::check()) {
             redirect('album/'.$albumId);
         }
         
-        // validate data
-        $comment = trim(Input::get('comment'));
-        
-        $commentDto['comment'] = $comment;
+        $commentDto['comment'] = trim(esc(Input::get('comment')));
         $commentDto['user_id'] = Auth::$user['id'];
         $commentDto['album_id'] = (int)$albumId;
         $commentDto['date_created'] = date("Y-m-d H:i:s");
+        
+        if($commentDto['album_id'] == 0) {
+            Session::put(['Invalid album.'], 'error');
+            redirect('index');
+        }
         
         if(!(new AlbumComments)->add($commentDto)) {
             Session::put(['Error submiting the comment.'], 'error');
@@ -84,6 +107,11 @@ class AlbumController extends Controller {
     }
     
     public function like($albumId) {
+        
+        $albumId = (int)$albumId;
+        if($albumId == 0) {
+            redirect('index');
+        }
         
         if(!Auth::check()) {
             redirect('album/'.$albumId);
@@ -103,6 +131,11 @@ class AlbumController extends Controller {
     }
     
     public function dislike($albumId) {
+        
+        $albumId = (int)$albumId;
+        if($albumId == 0) {
+            redirect('index');
+        }
         
         if(!Auth::check()) {
             redirect('album/'.$albumId);
