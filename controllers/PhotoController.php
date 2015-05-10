@@ -78,7 +78,8 @@ class PhotoController extends Controller {
             $photoDto['upload_date'] = date("Y-m-d H:i:s");
 
             $photoId = (new Photo)->add($photoDto);
-
+            
+            mkdir('storage');
             move_uploaded_file($photo['tmp_name'], 'storage/'.$photoId.'.'.$format);
         }
         
