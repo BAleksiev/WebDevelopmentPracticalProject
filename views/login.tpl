@@ -1,6 +1,9 @@
 
-<form action="{url(['login'])}" method="POST">
-    <input type="text" name="username" />
-    <input type="password" name="password" />
-    <input type="submit" value="Login"/>
-</form>
+<div class="form">
+    <form action="{url(['login'])}" method="POST">
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <input type="submit" value="Login"/>
+    </form>
+    <div class="clear"></div>
+</div>

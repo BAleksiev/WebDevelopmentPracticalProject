@@ -9,11 +9,12 @@ class Route {
     public static function create($route, $action) {
         self::createRoute($route, $action);
 
-        if($_POST || $_FILE) {
-            
-            $data = array_merge($_POST, $_FILE);
-            
-            Input::fillData($data);
+        if($_POST) {
+            Input::fillData($_POST);
+        }
+        
+        if($_FILES) {
+            Input::fillFileData($_FILES);
         }
     }
 

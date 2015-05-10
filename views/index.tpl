@@ -20,6 +20,7 @@
 
 </div>
 
+{if $top_albums}
 <div class="content-box">
 
     <div class="title">
@@ -28,15 +29,16 @@
     </div>
 
     <ul class="album-list">
-        {foreach $albums as $album}
+        {foreach $top_albums as $album}
             <li>
                 <a href="{url(['album', $album['id']])}">
                     <img src="{url(['public', 'images', 'album_icon.png'])}" width="100" />
 
-                    <div>{$album.name}</div>
+                    <div>{$album.name} ({$album.rating})</div>
                 </a>
             </li>
         {/foreach}
     </ul>
 
 </div>
+{/if}

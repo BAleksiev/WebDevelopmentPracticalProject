@@ -5,7 +5,7 @@ class Model {
     protected $table;
     protected $limit;
     protected $db;
-//
+    
     public function __construct($args = array()) {
         
         $defaults = array(
@@ -26,66 +26,6 @@ class Model {
         $db_object = Database::get_instance();
         $this->db = $db_object::get_db();
     }
-    
-    
-//    public static function find($ids) {
-//        
-//        if(!is_array($ids)) {
-//            $ids = array($ids);
-//        }
-//        
-//        $defaults = array(
-//            'table' => strtolower(get_called_class()).'s',
-////            'limit' => $this->limit,
-//            'where' => 'WHERE id IN ('.implode(',', $ids).')',
-//            'columns' => '*',
-//        );
-//        
-//        extract($defaults);
-//        
-//        $query = "SELECT {$columns} FROM {$table} {$where}";
-//        
-//        return self::executeQuery($query);
-//    }
-//    
-//    
-//    public static function where($constraint) {
-//        
-//    }
-//    
-//    private static function executeQuery($query) {
-//        return self::db()->query($query);
-//    }
-//    
-//    public static function get($result_set) {
-//        $results = array();
-//
-//        if(!empty($result_set) && $result_set->num_rows > 0) {
-//            while($row = $result_set->fetch_assoc()) {
-//                $results[] = $row;
-//            }
-//        }
-//
-//        return $results;
-//    }
-//    
-//    public static function first($result_set) {
-//        return $result_set->fetch_assoc();
-//    }
-//    
-//    public static function all() {
-//        
-//        $query("SELECT * FROM $table");
-//        
-//        $result_set = self::executeQuery($query);
-//        
-//        return self::get($result_set);
-//    }
-//    
-//    private static function db() {
-//        $db_object = Database::get_instance();
-//        return $db_object::get_db();
-//    }
 
     public function get($id) {
         return $this->find(array('where' => 'id = '.$id));
@@ -133,7 +73,7 @@ class Model {
 
         $this->db->query($query);
 
-        return $this->db->affected_rows;
+        return $this->db->insert_id;
     }
 
     public function find($args = array()) {
@@ -141,6 +81,8 @@ class Model {
             'table' => $this->table,
             'limit' => $this->limit,
             'where' => '',
+            'group' => '',
+            'order' => '',
             'columns' => '*',
         );
 
@@ -153,6 +95,14 @@ class Model {
         if(!empty($where)) {
             $query .= " WHERE $where";
         }
+        
+        if(!empty($group)) {
+            $query .= " GROUP BY $group";
+        }
+        
+        if(!empty($order)) {
+            $query .= " ORDER BY $order";
+        }
 
         if(!empty($limit)) {
             $query .= " LIMIT $limit";
@@ -163,6 +113,27 @@ class Model {
         $results = $this->process_results($result_set);
 
         return $results;
+    }
+    
+    public function delete($args = array()) {
+        $defaults = array(
+            'table' => $this->table,
+            'where' => '',
+        );
+
+        $args = array_merge($defaults, $args);
+        
+        extract($args);
+        
+        if(empty($where)) {
+            return false;
+        }
+        
+        $query = "DELETE FROM {$table} WHERE {$where}";
+        
+        $this->db->query($query);
+        
+        return $this->db->affected_rows;
     }
 
     protected function process_results($result_set) {
